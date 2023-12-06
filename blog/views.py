@@ -5,3 +5,4 @@ class BlogListView(ListView):
     model = Post
     template_name = 'blog/home.html'
 
+
