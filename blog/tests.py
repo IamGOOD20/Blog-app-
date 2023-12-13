@@ -11,8 +11,8 @@ class BlogTests(TestCase):
             password='secret'
         )
         self.post = Post.objects.create(
-            title='A good title',
-            content='Nice body content',
+            title='test title',
+            content='test content',
             author=self.user,
         )
 
@@ -21,14 +21,14 @@ class BlogTests(TestCase):
         self.assertEqual(str(post), post.title)
 
     def test_post_content(self):
-        self.assertEqual(f'{self.post.title}', 'A good title')
+        self.assertEqual(f'{self.post.title}', 'test title')
         self.assertEqual(f'{self.post.author}', 'testuser')
-        self.assertEqual(f'{self.post.content}', 'Nice body content')
+        self.assertEqual(f'{self.post.content}', 'test content')
 
     def test_post_list_view(self):
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Nice body content')
+        self.assertContains(response, 'test content')
         self.assertTemplateUsed(response, 'blog/home.html')
 
     def test_post_detail_view(self):
@@ -36,5 +36,51 @@ class BlogTests(TestCase):
         no_response = self.client.get('/post/100000/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(no_response.status_code, 404)
-        self.assertContains(response, 'A good title')
+        self.assertContains(response, 'test title')
         self.assertTemplateUsed(response, 'blog/post_detail.html')
+
+    def test_get_absolute_url(self):
+        self.assertEqual(self.post.get_absolute_url(), '/post/1/')
+
+    def test_post_content(self):
+        self.assertEqual(f'{self.post.title}', 'test title')
+        self.assertEqual(f'{self.post.author}', 'testuser')
+        self.assertEqual(f'{self.post.content}', 'test content')
+
+    def test_post_list_view(self):
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'test content')
+        self.assertTemplateUsed(response, 'blog/home.html')
+
+    def test_post_detail_view(self):
+        response = self.client.get('/post/1/')
+        no_response = self.client.get('/post/100000/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(no_response.status_code, 404)
+        self.assertContains(response, 'test title')
+        self.assertTemplateUsed(response, 'blog/post_detail.html')
+
+    def test_post_create_view(self):  # new
+        response = self.client.post(reverse('post_new'), {
+            'title': 'New title',
+            'body': 'New text',
+            'author': self.user.id,
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Post.objects.last().title, 'New title')
+        self.assertEqual(Post.objects.last().content, 'New text')
+
+    def test_post_update_view(self):  # new
+        response = self.client.post(reverse('post_edit', args='1'), {
+            'title': 'Updated title',
+            'body': 'Updated text',
+        })
+        self.assertEqual(response.status_code, 302)
+
+    def test_post_delete_view(self):  # new
+        response = self.client.post(
+            reverse('post_delete', args='1'))
+        self.assertEqual(response.status_code, 302)
+
