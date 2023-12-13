@@ -17,12 +17,12 @@ class BlogCreateView(CreateView):
     fields = ['author', 'title', 'content']
 
 class BlogUpdateView(UpdateView):
-    form = Post
+    model = Post
     template_name = 'blog/post_edit.html'
     fields = ['title', 'content']
     # queryset = None
 
 class BlogDeleteView(DeleteView):
     model = Post
-    template_name = 'blog/post_delete'
+    template_name = 'blog/post_delete.html'
     success_url = reverse_lazy('home')
